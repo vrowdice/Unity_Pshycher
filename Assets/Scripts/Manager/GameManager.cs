@@ -96,31 +96,30 @@ public class GameManager : MonoBehaviour
     /// 이름으로 씬 이동
     /// </summary>
     /// <param name="argStr">이동할 씬의 이름</param>
-    public void MoveSceneAsName(string argStr, bool argCursorState)
+    public void MoveSceneAsName(string argStr)
     {
         SceneManager.LoadScene(argStr);
-        ChangeCursorState(argCursorState);
     }
     /// <summary>
     /// 메인 게임 씬으로 이동
     /// </summary>
-    public void GoMainScene(int argRoundIndex)
+    public void GoMainScene()
     {
-        MoveSceneAsName("Main", false);
+        MoveSceneAsName("Main");
     }
     /// <summary>
     /// 타이틀 씬으로 이동
     /// </summary>
     public void GoTitleScene()
     {
-        MoveSceneAsName("Title", true);
+        MoveSceneAsName("Title");
     }
     /// <summary>
     /// 상점 씬으로 이동
     /// </summary>
     public void GoShopScene()
     {
-        MoveSceneAsName("Shop", true);
+        MoveSceneAsName("Shop");
     }
 
     /// <summary>
