@@ -1,3 +1,4 @@
+using System.IO;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -12,23 +13,13 @@ using UnityEngine.SceneManagement;
 /// 경고 패널 생성 기능
 /// 사운드 관리 기능
 /// </summary>
-public class GameManager : MonoBehaviour
+public class GameManager : MonoBehaviour, IGameManager
 {
     /// <summary>
     /// 자기 자신
     /// </summary>
-    static GameManager g_gameDataManager = null;
+    static GameManager g_gameManager = null;
 
-    /// <summary>
-    /// 옵션 매니저 프리펩
-    /// </summary>
-    [SerializeField]
-    GameObject m_optionManagerPrefeb = null;
-    /// <summary>
-    /// 돈 확인 패널 프리펩
-    /// </summary>
-    [SerializeField]
-    GameObject m_moneyPanelPrefeb = null;
     /// <summary>
     /// 경고 오브젝트 프리펩
     /// </summary>
@@ -39,6 +30,18 @@ public class GameManager : MonoBehaviour
     /// 현재 씬 캔버스의 트렌스폼
     /// </summary>
     private Transform m_canvasTrans = null;
+    /// <summary>
+    /// 스테이지 코드 리스트
+    /// </summary>
+    private List<int> m_stageCodeList = new List<int>();
+    /// <summary>
+    /// 스테이지 폴더 위치
+    /// </summary>
+    private string m_stageFolderPath = "Assets/Scenes/Stage";
+    /// <summary>
+    /// 현재 스테이지 코드
+    /// </summary>
+    private int m_stageCode = 0;
 
     /// <summary>
     /// 돈
@@ -50,9 +53,9 @@ public class GameManager : MonoBehaviour
     private void Awake()
     {
         //싱글톤 세팅
-        if (g_gameDataManager == null)
+        if (g_gameManager == null)
         {
-            g_gameDataManager = this;
+            g_gameManager = this;
             SceneManager.sceneLoaded -= SceneLoaded;
         }
         else
@@ -63,8 +66,6 @@ public class GameManager : MonoBehaviour
 
         //씬 로드하는 경우
         SceneManager.sceneLoaded += SceneLoaded;
-        //커서 상태 변경
-        ChangeCursorState(true);
     }
 
     private void OnEnable()
@@ -74,7 +75,9 @@ public class GameManager : MonoBehaviour
 
     private void OnEnableSetting()
     {
+        FileManager _fileManager = new FileManager();
 
+        m_stageCodeList = _fileManager.GetFileNum(m_stageFolderPath);
     }
 
     /// <summary>
@@ -85,10 +88,14 @@ public class GameManager : MonoBehaviour
     /// <param name="mode">모드</param>
     private void SceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        m_canvasTrans = GameObject.Find("Canvas").transform;
-        if (m_canvasTrans != null)
+        try
         {
-
+            m_canvasTrans = GameObject.Find("Canvas").transform;
+        }
+        catch
+        {
+            m_canvasTrans = null;
+            Debug.Log("no canvas");
         }
     }
 
@@ -96,31 +103,19 @@ public class GameManager : MonoBehaviour
     /// 이름으로 씬 이동
     /// </summary>
     /// <param name="argStr">이동할 씬의 이름</param>
-    public void MoveSceneAsName(string argStr, bool argCursorState)
+    public void MoveSceneAsName(string argStr)
     {
         SceneManager.LoadScene(argStr);
-        ChangeCursorState(argCursorState);
     }
+
     /// <summary>
-    /// 메인 게임 씬으로 이동
+    /// 스테이지 입장
     /// </summary>
-    public void GoMainScene(int argRoundIndex)
+    /// <param name="argStageCode">스테이지 코드</param>
+    public void EnterStage(int argStageCode)
     {
-        MoveSceneAsName("Main", false);
-    }
-    /// <summary>
-    /// 타이틀 씬으로 이동
-    /// </summary>
-    public void GoTitleScene()
-    {
-        MoveSceneAsName("Title", true);
-    }
-    /// <summary>
-    /// 상점 씬으로 이동
-    /// </summary>
-    public void GoShopScene()
-    {
-        MoveSceneAsName("Shop", true);
+        m_stageCode = argStageCode;
+        MoveSceneAsName(argStageCode.ToString());
     }
 
     /// <summary>
@@ -134,41 +129,24 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 커서 상태 활성화 비활성화
-    /// </summary>
-    /// <param name="argActive">여부</param>
-    public void ChangeCursorState(bool argActive)
-    {
-        if (SceneManager.GetActiveScene().name != "Main")
-        {
-            Cursor.visible = true;
-            Cursor.lockState = CursorLockMode.None;
-            return;
-        }
+    public static GameManager Instance => g_gameManager;
+    public Transform CanvasTrans => m_canvasTrans;
+    public List<int> StageCodeList => m_stageCodeList;
 
-        if (argActive == true)
+    public int StageCode
+    {
+        get { return m_stageCode; }
+        set
         {
-            Cursor.visible = true;
-            Cursor.lockState = CursorLockMode.None;
-        }
-        else
-        {
-            Cursor.visible = false;
-            Cursor.lockState = CursorLockMode.Confined;
+            if(m_stageCode <= 0)
+            {
+                return;
+            }
+
+            m_stageCode = value;
         }
     }
-
-    public static GameManager Instance
-    {
-        get { return g_gameDataManager; }
-    }
-    public Transform GetCanvasTrans
-    {
-        get { return m_canvasTrans; }
-    }
-
-    public long SetMoney
+    public long Money
     {
         get { return m_money; }
         set
@@ -180,6 +158,37 @@ public class GameManager : MonoBehaviour
             }
         }
     }
+}
 
+public interface IGameManager
+{
+    /// <summary>
+    /// 스테이지 코드 리스트
+    /// </summary>
+    List<int> StageCodeList { get; }
+    /// <summary>
+    /// 현재 씬의 캔버스 트랜스폼
+    /// </summary>
+    Transform CanvasTrans { get; }
+    /// <summary>
+    /// 현재 스테이지 코드
+    /// </summary>
+    int StageCode { get; set; }
+    /// <summary>
+    /// 돈
+    /// </summary>
+    long Money { get; set; }
+    /// <summary>
+    /// 스테이지 입장
+    /// </summary>
+    void EnterStage(int argStageCode);
+    /// <summary>
+    /// 이름으로 씬 이동
+    /// </summary>
+    void MoveSceneAsName(string argStr);
+    /// <summary>
+    /// 경고 패널 생성
+    /// </summary>
+    void Alert(string argAlertStr);
 }
 
