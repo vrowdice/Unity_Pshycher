@@ -42,9 +42,15 @@ public class SelectStageManager : MonoBehaviour
     /// </summary>
     void ResetSelectStageBtn()
     {
-        List<int> stageCodeList = m_gameManager.StageCodeList;
+        List<int> stageCodeList = m_gameManager.StageIndexList;
         for (int i = 0; i < stageCodeList.Count; i++)
         {
+            //클리어 해야 할 스테이지까지만 표시하기 위함
+            if(m_gameManager.ClearStageCount + 1 < i)
+            {
+                break;
+            }
+
             Instantiate(m_selectStageBtnPrefeb, m_stageSelectPanelContentTrans).GetComponent<SelectStageBtn>()
                 .ResetBtn(stageCodeList[i], this);
         }

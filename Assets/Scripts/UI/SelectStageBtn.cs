@@ -29,7 +29,7 @@ public class SelectStageBtn : MonoBehaviour
         m_stageCode = argStageCode;
         m_selectStageManager = argManager;
         //변경의 여지 있음
-        m_text.text = (argStageCode % 10000).ToString();
+        m_text.text = (argStageCode % 10000 + 1).ToString();
     }
 
     /// <summary>

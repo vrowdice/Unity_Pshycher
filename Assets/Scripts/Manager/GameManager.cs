@@ -25,6 +25,16 @@ public class GameManager : MonoBehaviour, IGameManager
     /// </summary>
     [SerializeField]
     GameObject m_alertObjPrefeb = null;
+    /// <summary>
+    /// 옵션 매니저
+    /// </summary>
+    [SerializeField]
+    OptionManager m_optionManager = null;
+
+    /// <summary>
+    /// 스테이지 폴더 위치
+    /// </summary>
+    private const string m_stageFolderPath = "Assets/Scenes/Stage/";
 
     /// <summary>
     /// 현재 씬 캔버스의 트렌스폼
@@ -32,16 +42,23 @@ public class GameManager : MonoBehaviour, IGameManager
     private Transform m_canvasTrans = null;
     /// <summary>
     /// 스테이지 코드 리스트
+    /// 현재는 레벨의 개념이 없음
     /// </summary>
-    private List<int> m_stageCodeList = new List<int>();
+    private List<List<int>> m_stageIndexList = new List<List<int>>();
     /// <summary>
-    /// 스테이지 폴더 위치
+    /// 스테이지 클리어 리스트
+    /// 최종 클리어 한 스테이지를 표시
     /// </summary>
-    private string m_stageFolderPath = "Assets/Scenes/Stage";
+    private List<int> m_stageClearList = new List<int>();
     /// <summary>
-    /// 현재 스테이지 코드
+    /// 현재 레벨 인덱스
+    /// 스테이지 위의 개념
     /// </summary>
-    private int m_stageCode = 0;
+    private int m_levelIndex = 0;
+    /// <summary>
+    /// 현재 스테이지 인덱스
+    /// </summary>
+    private int m_stageIndex = 0;
 
     /// <summary>
     /// 돈
@@ -66,18 +83,16 @@ public class GameManager : MonoBehaviour, IGameManager
 
         //씬 로드하는 경우
         SceneManager.sceneLoaded += SceneLoaded;
-    }
 
-    private void OnEnable()
-    {
-        OnEnableSetting();
-    }
-
-    private void OnEnableSetting()
-    {
+        //씬 이름 불러와서 리스트로 참조
         FileManager _fileManager = new FileManager();
+        m_stageIndexList.Add(_fileManager.GetFileNum(m_stageFolderPath + m_levelIndex.ToString()));
 
-        m_stageCodeList = _fileManager.GetFileNum(m_stageFolderPath);
+        //클리어 한 스테이지 초기화
+        for(int i = 0; i < m_stageIndexList.Count; i++)
+        {
+            m_stageClearList.Add(-1);
+        }
     }
 
     /// <summary>
@@ -91,6 +106,11 @@ public class GameManager : MonoBehaviour, IGameManager
         try
         {
             m_canvasTrans = GameObject.Find("Canvas").transform;
+
+            if(m_canvasTrans != null)
+            {
+                Instantiate(m_optionManager);
+            }
         }
         catch
         {
@@ -111,11 +131,20 @@ public class GameManager : MonoBehaviour, IGameManager
     /// <summary>
     /// 스테이지 입장
     /// </summary>
-    /// <param name="argStageCode">스테이지 코드</param>
-    public void EnterStage(int argStageCode)
+    /// <param name="argStageIndex">스테이지 코드</param>
+    public void EnterStage(int argStageIndex)
     {
-        m_stageCode = argStageCode;
-        MoveSceneAsName(argStageCode.ToString());
+        m_stageIndex = argStageIndex;
+        MoveSceneAsName(argStageIndex.ToString());
+    }
+
+    /// <summary>
+    /// 현재 스테이지 클리어
+    /// </summary>
+    public void ClearStage()
+    {
+        m_stageClearList[m_levelIndex] += 1;
+        MoveSceneAsName("SelectStage");
     }
 
     /// <summary>
@@ -131,19 +160,33 @@ public class GameManager : MonoBehaviour, IGameManager
 
     public static GameManager Instance => g_gameManager;
     public Transform CanvasTrans => m_canvasTrans;
-    public List<int> StageCodeList => m_stageCodeList;
+    public List<int> StageIndexList => m_stageIndexList[m_levelIndex];
+    public int ClearStageCount => m_stageClearList[m_levelIndex];
 
-    public int StageCode
+    public int LevelIndex
     {
-        get { return m_stageCode; }
+        get { return m_levelIndex; }
         set
         {
-            if(m_stageCode <= 0)
+            if (m_levelIndex <= 0)
             {
                 return;
             }
 
-            m_stageCode = value;
+            m_levelIndex = value;
+        }
+    }
+    public int StageIndex
+    {
+        get { return m_stageIndex; }
+        set
+        {
+            if(m_stageIndex <= 0)
+            {
+                return;
+            }
+
+            m_stageIndex = value;
         }
     }
     public long Money
@@ -163,17 +206,25 @@ public class GameManager : MonoBehaviour, IGameManager
 public interface IGameManager
 {
     /// <summary>
-    /// 스테이지 코드 리스트
+    /// 현재 레벨의 스테이지 인덱스 리스트 반환
     /// </summary>
-    List<int> StageCodeList { get; }
+    List<int> StageIndexList { get; }
     /// <summary>
     /// 현재 씬의 캔버스 트랜스폼
     /// </summary>
     Transform CanvasTrans { get; }
     /// <summary>
+    /// 클리어한 스테이지
+    /// </summary>
+    int ClearStageCount { get; }
+    /// <summary>
+    /// 현재 레벨 인덱스
+    /// </summary>
+    int LevelIndex { get; set; }
+    /// <summary>
     /// 현재 스테이지 코드
     /// </summary>
-    int StageCode { get; set; }
+    int StageIndex { get; set; }
     /// <summary>
     /// 돈
     /// </summary>
@@ -190,5 +241,8 @@ public interface IGameManager
     /// 경고 패널 생성
     /// </summary>
     void Alert(string argAlertStr);
+    /// <summary>
+    /// 스테이지 클리어
+    /// </summary>
+    void ClearStage();
 }
-
