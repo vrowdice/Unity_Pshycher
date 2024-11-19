@@ -131,17 +131,9 @@ public class GameManager : MonoBehaviour, IGameManager
     /// <summary>
     /// 스테이지 입장
     /// </summary>
-<<<<<<< HEAD
-    public void GoMainScene()
+    public void GoMainScene(int argRoundIndex)
     {
-        MoveSceneAsName("Main");
-=======
-    /// <param name="argStageIndex">스테이지 코드</param>
-    public void EnterStage(int argStageIndex)
-    {
-        m_stageIndex = argStageIndex;
-        MoveSceneAsName(argStageIndex.ToString());
->>>>>>> 5390da5cbe56cabbcabfd04abdec27f0b53ae863
+        MoveSceneAsName("Main", false);
     }
 
     /// <summary>
@@ -149,19 +141,14 @@ public class GameManager : MonoBehaviour, IGameManager
     /// </summary>
     public void ClearStage()
     {
-<<<<<<< HEAD
-        MoveSceneAsName("Title");
+        MoveSceneAsName("Title", true);
     }
     /// <summary>
     /// 상점 씬으로 이동
     /// </summary>
     public void GoShopScene()
     {
-        MoveSceneAsName("Shop");
-=======
-        m_stageClearList[m_levelIndex] += 1;
-        MoveSceneAsName("SelectStage");
->>>>>>> 5390da5cbe56cabbcabfd04abdec27f0b53ae863
+        MoveSceneAsName("Shop", true);
     }
 
     /// <summary>
