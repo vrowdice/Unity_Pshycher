@@ -1,3 +1,4 @@
+using System.IO;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -12,33 +13,52 @@ using UnityEngine.SceneManagement;
 /// 경고 패널 생성 기능
 /// 사운드 관리 기능
 /// </summary>
-public class GameManager : MonoBehaviour
+public class GameManager : MonoBehaviour, IGameManager
 {
     /// <summary>
     /// 자기 자신
     /// </summary>
-    static GameManager g_gameDataManager = null;
+    static GameManager g_gameManager = null;
 
-    /// <summary>
-    /// 옵션 매니저 프리펩
-    /// </summary>
-    [SerializeField]
-    GameObject m_optionManagerPrefeb = null;
-    /// <summary>
-    /// 돈 확인 패널 프리펩
-    /// </summary>
-    [SerializeField]
-    GameObject m_moneyPanelPrefeb = null;
     /// <summary>
     /// 경고 오브젝트 프리펩
     /// </summary>
     [SerializeField]
     GameObject m_alertObjPrefeb = null;
+    /// <summary>
+    /// 옵션 매니저
+    /// </summary>
+    [SerializeField]
+    OptionManager m_optionManager = null;
+
+    /// <summary>
+    /// 스테이지 폴더 위치
+    /// </summary>
+    private const string m_stageFolderPath = "Assets/Scenes/Stage/";
 
     /// <summary>
     /// 현재 씬 캔버스의 트렌스폼
     /// </summary>
     private Transform m_canvasTrans = null;
+    /// <summary>
+    /// 스테이지 코드 리스트
+    /// 현재는 레벨의 개념이 없음
+    /// </summary>
+    private List<List<int>> m_stageIndexList = new List<List<int>>();
+    /// <summary>
+    /// 스테이지 클리어 리스트
+    /// 최종 클리어 한 스테이지를 표시
+    /// </summary>
+    private List<int> m_stageClearList = new List<int>();
+    /// <summary>
+    /// 현재 레벨 인덱스
+    /// 스테이지 위의 개념
+    /// </summary>
+    private int m_levelIndex = 0;
+    /// <summary>
+    /// 현재 스테이지 인덱스
+    /// </summary>
+    private int m_stageIndex = 0;
 
     /// <summary>
     /// 돈
@@ -50,9 +70,9 @@ public class GameManager : MonoBehaviour
     private void Awake()
     {
         //싱글톤 세팅
-        if (g_gameDataManager == null)
+        if (g_gameManager == null)
         {
-            g_gameDataManager = this;
+            g_gameManager = this;
             SceneManager.sceneLoaded -= SceneLoaded;
         }
         else
@@ -63,18 +83,16 @@ public class GameManager : MonoBehaviour
 
         //씬 로드하는 경우
         SceneManager.sceneLoaded += SceneLoaded;
-        //커서 상태 변경
-        ChangeCursorState(true);
-    }
 
-    private void OnEnable()
-    {
-        OnEnableSetting();
-    }
+        //씬 이름 불러와서 리스트로 참조
+        FileManager _fileManager = new FileManager();
+        m_stageIndexList.Add(_fileManager.GetFileNum(m_stageFolderPath + m_levelIndex.ToString()));
 
-    private void OnEnableSetting()
-    {
-
+        //클리어 한 스테이지 초기화
+        for(int i = 0; i < m_stageIndexList.Count; i++)
+        {
+            m_stageClearList.Add(-1);
+        }
     }
 
     /// <summary>
@@ -85,10 +103,19 @@ public class GameManager : MonoBehaviour
     /// <param name="mode">모드</param>
     private void SceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        m_canvasTrans = GameObject.Find("Canvas").transform;
-        if (m_canvasTrans != null)
+        try
         {
+            m_canvasTrans = GameObject.Find("Canvas").transform;
 
+            if(m_canvasTrans != null)
+            {
+                Instantiate(m_optionManager);
+            }
+        }
+        catch
+        {
+            m_canvasTrans = null;
+            Debug.Log("no canvas");
         }
     }
 
@@ -100,18 +127,29 @@ public class GameManager : MonoBehaviour
     {
         SceneManager.LoadScene(argStr);
     }
+
     /// <summary>
-    /// 메인 게임 씬으로 이동
+    /// 스테이지 입장
     /// </summary>
+<<<<<<< HEAD
     public void GoMainScene()
     {
         MoveSceneAsName("Main");
-    }
-    /// <summary>
-    /// 타이틀 씬으로 이동
-    /// </summary>
-    public void GoTitleScene()
+=======
+    /// <param name="argStageIndex">스테이지 코드</param>
+    public void EnterStage(int argStageIndex)
     {
+        m_stageIndex = argStageIndex;
+        MoveSceneAsName(argStageIndex.ToString());
+>>>>>>> 5390da5cbe56cabbcabfd04abdec27f0b53ae863
+    }
+
+    /// <summary>
+    /// 현재 스테이지 클리어
+    /// </summary>
+    public void ClearStage()
+    {
+<<<<<<< HEAD
         MoveSceneAsName("Title");
     }
     /// <summary>
@@ -120,6 +158,10 @@ public class GameManager : MonoBehaviour
     public void GoShopScene()
     {
         MoveSceneAsName("Shop");
+=======
+        m_stageClearList[m_levelIndex] += 1;
+        MoveSceneAsName("SelectStage");
+>>>>>>> 5390da5cbe56cabbcabfd04abdec27f0b53ae863
     }
 
     /// <summary>
@@ -133,41 +175,38 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 커서 상태 활성화 비활성화
-    /// </summary>
-    /// <param name="argActive">여부</param>
-    public void ChangeCursorState(bool argActive)
-    {
-        if (SceneManager.GetActiveScene().name != "Main")
-        {
-            Cursor.visible = true;
-            Cursor.lockState = CursorLockMode.None;
-            return;
-        }
+    public static GameManager Instance => g_gameManager;
+    public Transform CanvasTrans => m_canvasTrans;
+    public List<int> StageIndexList => m_stageIndexList[m_levelIndex];
+    public int ClearStageCount => m_stageClearList[m_levelIndex];
 
-        if (argActive == true)
+    public int LevelIndex
+    {
+        get { return m_levelIndex; }
+        set
         {
-            Cursor.visible = true;
-            Cursor.lockState = CursorLockMode.None;
-        }
-        else
-        {
-            Cursor.visible = false;
-            Cursor.lockState = CursorLockMode.Confined;
+            if (m_levelIndex <= 0)
+            {
+                return;
+            }
+
+            m_levelIndex = value;
         }
     }
-
-    public static GameManager Instance
+    public int StageIndex
     {
-        get { return g_gameDataManager; }
-    }
-    public Transform GetCanvasTrans
-    {
-        get { return m_canvasTrans; }
-    }
+        get { return m_stageIndex; }
+        set
+        {
+            if(m_stageIndex <= 0)
+            {
+                return;
+            }
 
-    public long SetMoney
+            m_stageIndex = value;
+        }
+    }
+    public long Money
     {
         get { return m_money; }
         set
@@ -179,6 +218,48 @@ public class GameManager : MonoBehaviour
             }
         }
     }
-
 }
 
+public interface IGameManager
+{
+    /// <summary>
+    /// 현재 레벨의 스테이지 인덱스 리스트 반환
+    /// </summary>
+    List<int> StageIndexList { get; }
+    /// <summary>
+    /// 현재 씬의 캔버스 트랜스폼
+    /// </summary>
+    Transform CanvasTrans { get; }
+    /// <summary>
+    /// 클리어한 스테이지
+    /// </summary>
+    int ClearStageCount { get; }
+    /// <summary>
+    /// 현재 레벨 인덱스
+    /// </summary>
+    int LevelIndex { get; set; }
+    /// <summary>
+    /// 현재 스테이지 코드
+    /// </summary>
+    int StageIndex { get; set; }
+    /// <summary>
+    /// 돈
+    /// </summary>
+    long Money { get; set; }
+    /// <summary>
+    /// 스테이지 입장
+    /// </summary>
+    void EnterStage(int argStageCode);
+    /// <summary>
+    /// 이름으로 씬 이동
+    /// </summary>
+    void MoveSceneAsName(string argStr);
+    /// <summary>
+    /// 경고 패널 생성
+    /// </summary>
+    void Alert(string argAlertStr);
+    /// <summary>
+    /// 스테이지 클리어
+    /// </summary>
+    void ClearStage();
+}
