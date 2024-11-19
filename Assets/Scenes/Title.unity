@@ -338,7 +338,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 319601540}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 737844918}
+        m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
+        m_MethodName: GoMainScene
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &319601540
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -679,6 +691,17 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 610521697}
   m_CullTransparentMesh: 1
+--- !u!114 &737844918 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5017740333171241347, guid: 1d1785412f26ca242a7baf15a5c4e527, type: 3}
+  m_PrefabInstance: {fileID: 3588251214676403994}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b520e64ad5464c54ba652ce5cf8110d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &881478489
 GameObject:
   m_ObjectHideFlags: 0
