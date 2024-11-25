@@ -111,6 +111,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_health: 3
   m_hitEffectPrefab: {fileID: 0}
+  m_flashDuration: 0.2
+  m_viewSprite: {fileID: 3133601136710499670}
 --- !u!1 &3133601136710499670
 GameObject:
   m_ObjectHideFlags: 0
@@ -185,7 +187,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: -9095717837082945937, guid: 207ee8102dd4143d288186ef0be518ee, type: 3}
-  m_Color: {r: 1, g: 0, b: 0, a: 1}
+  m_Color: {r: 1, g: 0.5882353, b: 0.5882353, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0

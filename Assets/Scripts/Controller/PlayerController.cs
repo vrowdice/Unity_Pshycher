@@ -18,11 +18,27 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     LayerMask m_groundLayer;
 
-    [Header("Shooting Settings")]
+    [Header("Common Attak Settings")]
+    [SerializeField]
+    Transform m_atkPoint;
+
+    [Header("Melee Attack Settings")]
+    [SerializeField]
+    GameObject m_meleeAtkEffect = null;
+    [SerializeField]
+    int m_meleeDamage = 1;
+    [SerializeField]
+    float m_meleeAtkTime = 2.0f;
+    [SerializeField]
+    float m_meleeInterval = 1.0f;
+    [SerializeField]
+    float m_meleeAtkRadius = 1.0f;
+
+    [Header("Range Attak Settings")]
     [SerializeField]
     GameObject m_bulletPrefab;
     [SerializeField]
-    Transform m_firePoint;
+    int m_maxBullet = 3;
     [SerializeField]
     int m_bulletDamage = 1;
     [SerializeField]
@@ -30,8 +46,13 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     float m_bulletLifetime = 5.0f;
 
+    private List<Bullet> m_bulletList = new List<Bullet>();
     private Rigidbody2D m_rigidbody;
+    private GameObject m_meleeAtkEffectToDestroy = null;
     private bool m_isGrounded;
+    private bool m_isCanAttak = true;
+    private int m_modeInt = 0;
+    private AtkType m_nowAtkMode = new AtkType();
 
     void Start()
     {
@@ -61,27 +82,139 @@ public class PlayerController : MonoBehaviour
             m_rigidbody.velocity = new Vector2(m_rigidbody.velocity.x, m_jumpForce);
         }
 
-        // 총알 발사 로직
-        if (Input.GetButtonDown("Fire1"))
+        if(Input.GetKeyDown(KeyCode.M) == true)
         {
-            Shoot();
+            ModeChange();
+        }
+
+        if (Input.GetButtonDown("Fire1") == true && m_isCanAttak == true)
+        {
+            switch (m_nowAtkMode)
+            {
+                case AtkType.Melee:
+                    MeleeAtk();
+                    break;
+                case AtkType.Range:
+                    if(m_bulletList.Count < m_maxBullet)
+                    {
+                        RangeAtk();
+                    }
+                    break;
+            }
         }
     }
 
-    void Shoot()
+    void IsCanAtkFlagAsTrue()
     {
-        if (m_bulletPrefab != null && m_firePoint != null)
-        {
-            GameObject bulletObj = Instantiate(m_bulletPrefab, m_firePoint.position, Quaternion.identity);
-            Bullet bullet = bulletObj.GetComponent<Bullet>();
-            Rigidbody2D bulletRb = bulletObj.GetComponent<Rigidbody2D>();
+        m_isCanAttak = true;
+    }
 
-            bullet.ResetState(m_bulletDamage, m_bulletLifetime);
-            if (bulletRb != null)
+    /// <summary>
+    /// 모드 변경
+    /// </summary>
+    void ModeChange()
+    {
+        m_modeInt++;
+
+        int enumCount = AtkType.GetValues(typeof(AtkType)).Length;
+        if(m_modeInt >= enumCount)
+        {
+            m_modeInt = 0;
+        }
+        m_nowAtkMode = IntToAtkType(m_modeInt);
+    }
+
+    /// <summary>
+    /// 근거리 공격
+    /// </summary>
+    void MeleeAtk()
+    {
+        if(m_meleeAtkEffect == null)
+        {
+            return;
+        }
+
+        // 근접 공격 효과 생성
+        m_meleeAtkEffectToDestroy = Instantiate(m_meleeAtkEffect, m_atkPoint);
+        Destroy(m_meleeAtkEffectToDestroy, m_meleeAtkTime);
+
+        // 공격 범위 내의 모든 객체를 감지
+        Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(m_atkPoint.position, m_meleeAtkRadius);
+
+        // Enemy 태그를 가진 적들에게 데미지 전달
+        foreach (Collider2D enemy in hitEnemies)
+        {
+            if (enemy.CompareTag("Enemy"))
             {
-                float direction = transform.localScale.x;
-                bulletRb.velocity = new Vector2(direction * m_bulletSpeed, 0);
+                EnemyController enemyController = enemy.GetComponent<EnemyController>();
+                if (enemyController != null)
+                {
+                    enemyController.TakeDamage(m_meleeDamage);
+                }
             }
+        }
+
+        m_isCanAttak = false;
+        Invoke("IsCanAtkFlagAsTrue", m_meleeAtkTime);
+    }
+
+    /// <summary>
+    /// 원거리 공격
+    /// </summary>
+    void RangeAtk()
+    {
+        if (m_bulletPrefab == null && m_atkPoint == null)
+        {
+            return;
+        }
+
+        GameObject bulletObj = Instantiate(m_bulletPrefab, m_atkPoint.position, Quaternion.identity);
+        Bullet bullet = bulletObj.GetComponent<Bullet>();
+        Rigidbody2D bulletRb = bulletObj.GetComponent<Rigidbody2D>();
+
+        //총알 초기화
+        bullet.ResetState(m_bulletDamage, m_bulletLifetime, this);
+        //리스트에 총알 추가
+        m_bulletList.Add(bullet);
+
+        //총알 가속도 설정
+        if (bulletRb != null)
+        {
+            float direction = transform.localScale.x;
+            bulletRb.velocity = new Vector2(direction * m_bulletSpeed, 0);
+        }
+    }
+
+    /// <summary>
+    /// 정수 값을 공격 타입으로 변경
+    /// </summary>
+    /// <param name="value">정수</param>
+    /// <returns>공격 타입</returns>
+    AtkType IntToAtkType(int value)
+    {
+        switch (value)
+        {
+            case 0:
+                return AtkType.Melee;
+            case 1:
+                return AtkType.Range;
+            default:
+                return AtkType.Melee;
+        }
+    }
+
+    /// <summary>
+    /// 총알 완전 삭제
+    /// 총알에서 불러옴
+    /// </summary>
+    /// <param name="argBullet">총알 자기 자신</param>
+    public void DestroyBullet(Bullet argBullet)
+    {
+        int _bulletIndex = m_bulletList.IndexOf(argBullet);
+        if(_bulletIndex != -1)
+        {
+            Destroy(m_bulletList[_bulletIndex].gameObject);
+            m_bulletList.RemoveAt(_bulletIndex);
         }
     }
 
@@ -89,8 +222,13 @@ public class PlayerController : MonoBehaviour
     {
         if (m_groundCheck != null)
         {
-            Gizmos.color = Color.red;
+            Gizmos.color = Color.blue;
             Gizmos.DrawWireSphere(m_groundCheck.position, m_groundCheckRadius);
+        }
+        if(m_atkPoint != null)
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(m_atkPoint.position, m_meleeAtkRadius);
         }
     }
 }

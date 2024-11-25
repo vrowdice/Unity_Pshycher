@@ -118,10 +118,16 @@ MonoBehaviour:
   m_groundLayer:
     serializedVersion: 2
     m_Bits: 64
+  m_atkPoint: {fileID: 7935008738875100874}
+  m_meleeAtkEffect: {fileID: 1773480655053233236, guid: 36ef88c8858815b4c9f8537a942b2660, type: 3}
+  m_meleeDamage: 1
+  m_meleeAtkTime: 2
+  m_meleeInterval: 1
+  m_meleeAtkRadius: 1
   m_bulletPrefab: {fileID: 2902249373918335381, guid: 38783fb083f5ad64ca099c36ddea16cb, type: 3}
-  m_firePoint: {fileID: 7935008738875100874}
+  m_bulletDamage: 1
   m_bulletSpeed: 10
-  m_bulletDestroyTime: 5
+  m_bulletLifetime: 5
 --- !u!1 &3133601136710499670
 GameObject:
   m_ObjectHideFlags: 0
@@ -247,7 +253,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7935008738875100874}
   m_Layer: 0
-  m_Name: FirePoint
+  m_Name: AtkPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
