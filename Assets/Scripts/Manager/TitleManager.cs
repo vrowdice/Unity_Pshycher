@@ -19,6 +19,9 @@ public class TitleManager : MonoBehaviour
         m_titlePanelPrefeb.transform.Find("ContinueBtn").GetComponent<Button>().onClick.AddListener(() =>
         GameManager.Instance.MoveSceneAsName("SelectStage"));
 
+        m_titlePanelPrefeb.transform.Find("NewGameBtn").GetComponent<Button>().onClick.AddListener(() =>
+        GameManager.Instance.MoveSceneAsName("Intro"));
+
         m_titlePanelPrefeb.transform.Find("QuitGameBtn").GetComponent<Button>().onClick.AddListener(() =>
         QuitGame());
     }
@@ -28,6 +31,8 @@ public class TitleManager : MonoBehaviour
     {
         
     }
+
+    
 
     /// <summary>
     /// 게임 나가기
