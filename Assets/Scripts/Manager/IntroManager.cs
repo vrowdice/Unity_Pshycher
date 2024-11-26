@@ -45,7 +45,7 @@ public class IntroManager : MonoBehaviour
     void Start()
     {
         // 텍스트 박스를 처음에 비활성화
-        TextBoxPanel.SetActive(false);
+        TextBoxPanel.gameObject.SetActive(false);
 
         // 검은 화면 페이드 아웃 코루틴 시작
         StartCoroutine(FadeOutScene());
@@ -73,7 +73,7 @@ public class IntroManager : MonoBehaviour
     IEnumerator ShowDialogueBox()
     {
         // 대화 상자 페이드 인
-        TextBoxPanel.SetActive(true);
+        TextBoxPanel.gameObject.SetActive(true);
 
 
         // 대화 진행
@@ -91,7 +91,7 @@ public class IntroManager : MonoBehaviour
 
         // 대화가 끝난 후 약간의 대기 시간 (0.5초)
         yield return new WaitForSeconds(0.5f);
-        TextBoxPanel.SetActive(false);
+        TextBoxPanel.gameObject.SetActive(false);
 
         // 화면을 투명에서 검은색으로 페이드 인 (암전)
         yield return FadeCanvasGroup(FadeImage, 0, 1, fadeDuration);
