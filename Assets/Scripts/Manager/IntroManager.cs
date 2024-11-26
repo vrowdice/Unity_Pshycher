@@ -18,7 +18,7 @@ public class IntroManager : MonoBehaviour
     /// <summary>
     /// 대화 텍스트 (TextMeshPro를 이용한 텍스트 컴포넌트)
     /// </summary>
-    public TextMeshProUGUI dialogueText;
+    public TextMeshProUGUI DialogueText;
 
     /// <summary>
     /// 페이드 인/아웃 효과가 진행되는 시간 (초 단위)
@@ -35,11 +35,21 @@ public class IntroManager : MonoBehaviour
     /// </summary>
     private int currentLineIndex = 0;
 
+    /// <summary>
+    /// 페이드 상태 관리
+    /// </summary>
+    private bool isFading = false; 
+
+
     // Start 메서드는 스크립트가 활성화될 때 처음 실행됩니다.
     void Start()
     {
-        // 게임 시작 시 검은 화면에서 페이드 아웃 효과를 실행
+        // 텍스트 박스를 처음에 비활성화
+        TextBoxPanel.SetActive(false);
+
+        // 검은 화면 페이드 아웃 코루틴 시작
         StartCoroutine(FadeOutScene());
+
     }
 
     /// <summary>
@@ -48,7 +58,7 @@ public class IntroManager : MonoBehaviour
     IEnumerator FadeOutScene()
     {
         // 화면을 검은색에서 투명으로 페이드 아웃
-        yield return FadeCanvasGroup(FadeImage, 0, 1, fadeDuration);
+        yield return FadeCanvasGroup(FadeImage, 1, 0, fadeDuration);
 
         // 약간의 대기 시간 (0.5초)
         yield return new WaitForSeconds(0.5f);
@@ -56,20 +66,21 @@ public class IntroManager : MonoBehaviour
         // 대화 상자를 표시하는 코루틴 실행
         yield return ShowDialogueBox();
     }
-
+    
     /// <summary>
     /// 대화 상자를 페이드 인하여 표시하고 대화를 진행하는 코루틴
     /// </summary>
     IEnumerator ShowDialogueBox()
     {
-        // 대화 상자를 투명에서 불투명으로 페이드 인
-        yield return FadeCanvasGroup(TextBoxPanel, 0, 1, fadeDuration);
+        // 대화 상자 페이드 인
+        TextBoxPanel.SetActive(true);
+
 
         // 대화 진행
         while (currentLineIndex < dialogueLines.Length)
         {
             // 현재 대사 배열의 내용을 텍스트 박스에 표시
-            dialogueText.text = dialogueLines[currentLineIndex];
+            DialogueText.text = dialogueLines[currentLineIndex];
 
             // 다음 대사를 준비하기 위해 인덱스 증가
             currentLineIndex++;
@@ -80,12 +91,10 @@ public class IntroManager : MonoBehaviour
 
         // 대화가 끝난 후 약간의 대기 시간 (0.5초)
         yield return new WaitForSeconds(0.5f);
-
-        // 대화 상자를 불투명에서 투명으로 페이드 아웃
-        yield return FadeCanvasGroup(TextBoxPanel, 1, 0, fadeDuration);
+        TextBoxPanel.SetActive(false);
 
         // 화면을 투명에서 검은색으로 페이드 인 (암전)
-        yield return FadeCanvasGroup(FadeImage, 1, 0, fadeDuration);
+        yield return FadeCanvasGroup(FadeImage, 0, 1, fadeDuration);
     }
 
     /// <summary>
