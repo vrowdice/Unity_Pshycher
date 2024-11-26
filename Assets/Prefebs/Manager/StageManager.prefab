@@ -45,6 +45,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_playerPrefeb: {fileID: 308053950322473791, guid: 9a3c93972a733724aa60dc8416f797c1, type: 3}
-  m_isReachDestination: 0
-  m_isKillAllEnemy: 0
+  m_abilityPanelPrefeb: {fileID: 4329632135413176467, guid: ca3e85f398305094387e56541d30de2d, type: 3}
+  m_isReachDestination: 1
   m_destination: {fileID: 0}
+  m_isKillAllEnemy: 0

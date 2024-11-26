@@ -49,6 +49,7 @@ public class PlayerController : MonoBehaviour
     private List<Bullet> m_bulletList = new List<Bullet>();
     private Rigidbody2D m_rigidbody;
     private GameObject m_meleeAtkEffectToDestroy = null;
+    private bool m_isCanControll = true;
     private bool m_isGrounded;
     private bool m_isCanAttak = true;
     private int m_modeInt = 0;
@@ -61,6 +62,11 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        if(m_isCanControll == false)
+        {
+            return;
+        }
+
         // 이동 로직
         float _moveInput = Input.GetAxis("Horizontal");
         m_rigidbody.velocity = new Vector2(_moveInput * m_moveSpeed, m_rigidbody.velocity.y);
@@ -155,7 +161,7 @@ public class PlayerController : MonoBehaviour
         }
 
         m_isCanAttak = false;
-        Invoke("IsCanAtkFlagAsTrue", m_meleeAtkTime);
+        Invoke("IsCanAtkFlagAsTrue", m_meleeInterval);
     }
 
     /// <summary>
@@ -229,6 +235,15 @@ public class PlayerController : MonoBehaviour
         {
             Gizmos.color = Color.red;
             Gizmos.DrawWireSphere(m_atkPoint.position, m_meleeAtkRadius);
+        }
+    }
+
+    public bool IsCanControll
+    {
+        get { return m_isCanControll; }
+        set
+        {
+            m_isCanControll = value;
         }
     }
 }
