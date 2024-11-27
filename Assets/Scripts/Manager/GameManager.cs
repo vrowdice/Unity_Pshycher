@@ -44,6 +44,7 @@ public class GameManager : MonoBehaviour, IGameManager
     /// 스테이지 코드 리스트
     /// 현재는 레벨의 개념이 없음
     /// </summary>
+    [SerializeField]
     private List<List<int>> m_stageIndexList = new List<List<int>>();
     /// <summary>
     /// 스테이지 클리어 리스트
@@ -86,8 +87,14 @@ public class GameManager : MonoBehaviour, IGameManager
         SceneManager.sceneLoaded += SceneLoaded;
 
         //씬 이름 불러와서 리스트로 참조
-        FileManager _fileManager = new FileManager();
-        m_stageIndexList.Add(_fileManager.GetFileNum(m_stageFolderPath + m_levelIndex.ToString()));
+        //빌드에서 작동하지 않음
+        //FileManager _fileManager = new FileManager();
+        //m_stageIndexList.Add(_fileManager.GetFileNum(m_stageFolderPath + m_levelIndex.ToString()));
+        List<int> _list = new List<int>();
+        _list.Add(0);
+        _list.Add(1);
+        _list.Add(2);
+        m_stageIndexList.Add(_list);
 
         //클리어 한 스테이지 초기화
         for(int i = 0; i < m_stageIndexList.Count; i++)
@@ -135,7 +142,7 @@ public class GameManager : MonoBehaviour, IGameManager
     /// <param name="argStageIndex">스테이지 코드</param>
     public void EnterStage(int argStageIndex)
     {
-        StageIndex = argStageIndex;
+        m_stageIndex = argStageIndex;
         MoveSceneAsName(argStageIndex.ToString());
     }
 
@@ -188,7 +195,7 @@ public class GameManager : MonoBehaviour, IGameManager
     public int StageIndex
     {
         get { return m_stageIndex; }
-        set
+        private set
         {
             if(m_stageIndex <= 0)
             {
@@ -233,7 +240,7 @@ public interface IGameManager
     /// <summary>
     /// 현재 스테이지 코드
     /// </summary>
-    int StageIndex { get; set; }
+    int StageIndex { get; }
     /// <summary>
     /// 돈
     /// </summary>

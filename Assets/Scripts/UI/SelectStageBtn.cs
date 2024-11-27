@@ -19,6 +19,13 @@ public class SelectStageBtn : MonoBehaviour
     /// </summary>
     private SelectStageManager m_selectStageManager = null;
 
+    private IGameManager m_gameManager = null;
+
+    private void Start()
+    {
+        m_gameManager = GameManager.Instance;
+    }
+
     /// <summary>
     /// 이 버튼 초기화
     /// </summary>
@@ -37,6 +44,6 @@ public class SelectStageBtn : MonoBehaviour
     /// </summary>
     public void Click()
     {
-        GameManager.Instance.EnterStage(m_stageCode);
+        m_gameManager.EnterStage(m_stageCode);
     }
 }

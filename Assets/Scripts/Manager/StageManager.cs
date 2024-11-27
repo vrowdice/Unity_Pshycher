@@ -147,7 +147,10 @@ public class StageManager : MonoBehaviour
     /// </summary>
     void ClearStage()
     {
-        Debug.Log("in");
+        if(m_gameManager.StageIndexList.Count <= m_gameManager.StageIndex + 1)
+        {
+            m_gameManager.ClearStage(false);
+        }
 
         m_playerController.IsCanControll = false;
         m_resultPanelPrefeb.SetActive(true);
