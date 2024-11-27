@@ -16,7 +16,7 @@ public class TitleManager : MonoBehaviour
     {
         m_titlePanelPrefeb = Instantiate(m_titlePanelPrefeb, GameManager.Instance.CanvasTrans);
 
-        m_titlePanelPrefeb.transform.Find("ContinueBtn").GetComponent<Button>().onClick.AddListener(() =>
+        m_titlePanelPrefeb.transform.Find("NewGameBtn").GetComponent<Button>().onClick.AddListener(() =>
         GameManager.Instance.MoveSceneAsName("SelectStage"));
 
         m_titlePanelPrefeb.transform.Find("QuitGameBtn").GetComponent<Button>().onClick.AddListener(() =>

@@ -15,6 +15,11 @@ public class StageManager : MonoBehaviour
     /// </summary>
     [SerializeField]
     GameObject m_abilityPanelPrefeb = null;
+    /// <summary>
+    /// 게임 결과 패널
+    /// </summary>
+    [SerializeField]
+    GameObject m_resultPanelPrefeb = null;
 
     [Header("Stage Setting")]
     /// <summary>
@@ -69,6 +74,10 @@ public class StageManager : MonoBehaviour
         m_abilityPanelPrefeb = Instantiate(m_abilityPanelPrefeb, m_gameManager.CanvasTrans);
         m_abilityPanelPrefeb.SetActive(false);
 
+        //결과 패널 생성
+        m_resultPanelPrefeb = Instantiate(m_resultPanelPrefeb, m_gameManager.CanvasTrans);
+        m_resultPanelPrefeb.SetActive(false);
+
         // Enemy 태그를 가진 모든 적을 가져오기
         GameObject[] _enemies = GameObject.FindGameObjectsWithTag("Enemy");
         m_enemyList = new List<GameObject>(_enemies);
@@ -113,7 +122,7 @@ public class StageManager : MonoBehaviour
         {
             if (m_enemyList.Count <= 0)
             {
-                m_gameManager.ClearStage();
+                ClearStage();
             }
         }
     }
@@ -128,8 +137,19 @@ public class StageManager : MonoBehaviour
             float distance = Vector3.Distance(m_playerPrefeb.transform.position, m_destination.position);
             if (distance < 1.0f)
             {
-                m_gameManager.ClearStage();
+                ClearStage();
             }
         }
+    }
+
+    /// <summary>
+    /// 스테이지 클리어 시
+    /// </summary>
+    void ClearStage()
+    {
+        Debug.Log("in");
+
+        m_playerController.IsCanControll = false;
+        m_resultPanelPrefeb.SetActive(true);
     }
 }

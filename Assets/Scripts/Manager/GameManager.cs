@@ -73,15 +73,16 @@ public class GameManager : MonoBehaviour, IGameManager
         if (g_gameManager == null)
         {
             g_gameManager = this;
-            SceneManager.sceneLoaded -= SceneLoaded;
+            DontDestroyOnLoad(gameObject);
         }
         else
         {
             Destroy(gameObject);
+            return;
         }
-        DontDestroyOnLoad(gameObject);
 
         //씬 로드하는 경우
+        SceneManager.sceneLoaded -= SceneLoaded;
         SceneManager.sceneLoaded += SceneLoaded;
 
         //씬 이름 불러와서 리스트로 참조
@@ -134,17 +135,25 @@ public class GameManager : MonoBehaviour, IGameManager
     /// <param name="argStageIndex">스테이지 코드</param>
     public void EnterStage(int argStageIndex)
     {
-        m_stageIndex = argStageIndex;
+        StageIndex = argStageIndex;
         MoveSceneAsName(argStageIndex.ToString());
     }
 
     /// <summary>
     /// 현재 스테이지 클리어
     /// </summary>
-    public void ClearStage()
+    public void ClearStage(bool argIsNextStage)
     {
         m_stageClearList[m_levelIndex] += 1;
-        MoveSceneAsName("SelectStage");
+
+        if (argIsNextStage == true)
+        {
+            EnterStage(StageIndex + 1);
+        }
+        else
+        {
+            MoveSceneAsName("SelectStage");
+        }
     }
 
     /// <summary>
@@ -244,5 +253,5 @@ public interface IGameManager
     /// <summary>
     /// 스테이지 클리어
     /// </summary>
-    void ClearStage();
+    void ClearStage(bool argIsNextStage);
 }
